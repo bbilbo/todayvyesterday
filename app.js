@@ -9,6 +9,14 @@ app.get('/index2.html', function(req, res) {
 	res.sendfile('index2.html');
 });
 
+app.get('/test.html', function(req, res) {
+	res.sendfile('test.html');
+});
+
+app.get('/images/background.png', function(req, res) {
+	res.sendfile('images/background.png');
+});
+
 app.get('/node_modules/async/lib/async.js', function(req, res) {
 	console.log('Request for async.js');
 	res.sendfile('node_modules/async/lib/async.js');
