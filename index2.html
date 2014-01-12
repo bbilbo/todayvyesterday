@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+
+<p id="demo">Click the button to get your coordinates:</p>
+
+<button onclick="getLocation()">Try It</button>
+
+<p id="demo2"></p>
+
+<script>
+
+var x=document.getElementById("demo");
+var y=document.getElementById("demo2");
+
+function getLocation()
+  {
+  if (navigator.geolocation)
+    {
+    navigator.geolocation.getCurrentPosition(showPosition);
+    }
+  else{x.innerHTML="Geolocation is not supported by this browser.";}
+  }
+
+function showPosition(position)
+  {
+  	jQuery(document).ready(function($) {
+  $.ajax({
+  url : "http://api.wunderground.com/api/31d46c83b443d545/geolookup/conditions/q/" + position.coords.latitude + "," + position.coords.longitude + ".json",
+  dataType : "jsonp",
+  success : function(parsed_json) {
+  var location = parsed_json['location']['city'];
+  var temp_f = parsed_json['current_observation']['temp_f'];
+  y.innerHTML = "Current temperature in " + location + " is: " + temp_f;
+  }
+  });
+});
+  x.innerHTML="Latitude: " + position.coords.latitude + 
+  "<br>Longitude: " + position.coords.longitude;	
+  }
+
+</script>
+</body>
+</html>
