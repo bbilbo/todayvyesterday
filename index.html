@@ -4,29 +4,36 @@
 <style type="text/css">
 body
 {
+font-family:Arial, Helvetica, sans-serif;
+color: rgb(113, 112, 112);
 background-image:url("images/background.png");
 }
 #top_area {
-  font-family:Arial, Helvetica, sans-serif;
   font-size:20px;
-  color: rgb(113, 112, 112);
   background-color:#FFFFFF;
   border-bottom: 2px rgb(113, 112, 112) solid;
   width:100%;
   height: 120px;
   vertical-align: center;
   padding: 15px;
+  padding-left: 120px;
 }
 #bottom_area {
-  font-family:Arial, Helvetica, sans-serif;
+  padding-top: 10px;
+  padding-left: 120px;
   font-size:60px;
-  color: rgb(113, 112, 112);
   margin:10px;
+  padding-bottom: 20px;
+}
+#footer {
+  padding-left: 120px;
+  background-color:#FFFFFF;
+  font-size: 19px;
 }
 </style>
 </head>
 
-<body>
+<body style="margin:0px;">
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 <script src="/node_modules/async/lib/async.js"></script>
@@ -53,9 +60,13 @@ background-image:url("images/background.png");
   <div id="diff_temp"></div>
 </div>
 
+<div id="footer">
+  <div id="help"></div>
+</div>
+
 <script>
 
-var dev_env = false;
+var dev_env = true;
 
 var dev_latitude = 40.7684912;
 var dev_longitude = -73.9564793;
@@ -68,6 +79,7 @@ var p_yesterday_temp = document.getElementById("yesterday_temp");
 var p_diff_temp = document.getElementById("diff_temp");
 var div_status = document.getElementById("status");
 var init_message = document.getElementById("init_message");
+var div_help = document.getElementById("help");
 
 var users_latitude;
 var users_longitude;
@@ -134,8 +146,8 @@ function getWeatherButton() {
 
   async.whilst(
       function () {
-        if (count == 10) {
-          console.log("waited 10 seconds for location");
+        if (count == 15) {
+          console.log("waited 15 seconds for location");
           return false;
         } else {
           var test1 = users_latitude == null;
@@ -168,8 +180,8 @@ function getWeatherButtonCallback() {
 
   async.whilst(
       function () {
-        if (count == 5) {
-          console.log("waited 5 seconds for temperatures (" + todays_temp + ", " + yesterdays_temp + ")");
+        if (count == 15) {
+          console.log("waited 15 seconds for temperatures (" + todays_temp + ", " + yesterdays_temp + ")");
           return false;
         } else {
           var test1 = todays_temp == null;
@@ -195,15 +207,27 @@ function getWeather() {
   
   var diff_description;
   var diff_amount;
+  var help_text = "";
 
   console.log("todays_temp: " + todays_temp);
   console.log("yesterdays_temp: " + yesterdays_temp);
+
   if (todays_temp > yesterdays_temp) {
     diff_description = "warmer";
     diff_amount = todays_temp - yesterdays_temp;
+
+    if (diff_amount > 4) {
+      help_text = "looks like it is warmer today. maybe you could dress a bit lighter"
+    }
+
   } else {
     diff_description = "cooler";
     diff_amount = yesterdays_temp - todays_temp;
+
+    if (diff_amount > 4) {
+      help_text = "looks like it is cooler today. maybe you should dress a bit heavier"
+    }
+
   }
 
   diff_amount = Math.round(diff_amount * 100) / 100;
@@ -212,6 +236,8 @@ function getWeather() {
 
   p_diff_temp.innerHTML = display_text;
   div_status.innerHTML="";
+
+  div_help.innerHTML = help_text;
 
   console.log("function end: getWeather()");
 }
@@ -241,6 +267,8 @@ function getCurrentWeather() {
       success : function(parsed_json) {
         var location = parsed_json['location']['city'];
         todays_temp = parsed_json['current_observation']['temp_f'];
+
+        div_status.innerHTML="";
         p_current_location.innerHTML = "Location: " + location;
         p_current_temp.innerHTML = "Current temp: " + todays_temp + "°";
       }

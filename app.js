@@ -13,6 +13,10 @@ app.get('/test.html', function(req, res) {
 	res.sendfile('test.html');
 });
 
+app.get('/test2.html', function(req, res) {
+	res.sendfile('test2.html');
+});
+
 app.get('/images/background.png', function(req, res) {
 	res.sendfile('images/background.png');
 });
