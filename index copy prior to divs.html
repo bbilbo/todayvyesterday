@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body
+{
+font-family:Arial, Helvetica, sans-serif;
+font-size:20px;
+color: rgb(113, 112, 112);
+}
+</style>
+</head>
+
+<body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script src="/node_modules/async/lib/async.js"></script>
+
+<table style="width:100%; text-align:center;">
+  <tr style="width:100%; text-align:center;">
+    <td style="width:100%; text-align:center; border:1px;"><table style="width:980px; height:161px; text-align: left;"><tr><td>
+      <span style="font-size:41px">Weather - Today v Yesterday</span><br><span>See how today's weather compares to yesterdays.</span>
+    </td></tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td>
+      <div id="init_message">
+
+        <p id="info1">Click the button to get today's and yesterday's weather:</p>
+
+        <button onclick="getWeatherButton()">Get Today's & Yesterday's Weather</button>
+
+      </div>
+
+      <div id="status"></div>
+
+      <p id="current_location"></p>
+
+      <p id="current_temp"></p>
+
+      <p id="yesterday_temp"></p>
+
+      <p id="diff_temp"></p>
+    </td>
+  </tr>
+</table>
+
+<script>
+
+var dev_env = false;
+
+var dev_latitude = 40.7684912;
+var dev_longitude = -73.9564793;
+
+var info1 = document.getElementById("info1");
+
+var p_current_location = document.getElementById("current_location");
+var p_current_temp = document.getElementById("current_temp");
+var p_yesterday_temp = document.getElementById("yesterday_temp");
+var p_diff_temp = document.getElementById("diff_temp");
+var div_status = document.getElementById("status");
+var init_message = document.getElementById("init_message");
+
+var users_latitude;
+var users_longitude;
+
+var todays_temp;
+var yesterdays_temp;
+
+// helper functions
+
+function getLocationButton() {
+  getLocation();
+}
+
+function getLocation() {
+  console.log("function start: getLocation()");
+
+  if (dev_env) {
+    users_latitude = dev_latitude;
+    users_longitude = dev_longitude;
+    //p_current_location.innerHTML = "Latitude: " + users_latitude + " & Longitude: " + users_longitude;
+  } else {
+    getCurPos();
+  }
+
+  console.log("function end: getLocation()");
+}
+
+function getCurPos() {
+  console.log("function start: getCurPos()");
+  if (navigator.geolocation) {
+    
+    navigator.geolocation.getCurrentPosition(getCurPosCallback);
+    
+  } else {
+    p_current_temp.innerHTML="Geolocation is not supported by this browser.";
+  }
+  console.log("function end: getCurPos()");
+}
+
+function getCurPosCallback(position) {
+  console.log("function start: getCurPosCallback()");
+  
+  users_latitude = position.coords.latitude;
+  users_longitude = position.coords.longitude;
+  
+  //p_current_location.innerHTML = "Latitude: " + users_latitude + " & Longitude: " + users_longitude;
+
+  div_status.innerHTML="Got current location.";
+  
+  console.log("function end: getCurPosCallback()");
+}
+
+// functions that call weatherunderground
+
+function getWeatherButton() {
+  console.log("function start: getWeatherButton()");
+
+  init_message.style.display = "none";
+  div_status.innerHTML="Getting current location.";
+
+  getLocation();
+
+  var count = 0;
+
+  async.whilst(
+      function () {
+        if (count == 5) {
+          console.log("waited 5 seconds for location");
+          return false;
+        } else {
+          var test1 = users_latitude == null;
+          var test2 = users_longitude == null;
+          return test1 || test2;
+        }
+      },
+      function (callback) {
+          count++;
+          console.log("waiting for location (" + users_latitude + ", " + users_longitude + ")");
+          setTimeout(callback, 1000);
+      },
+      function (err) {
+          getWeatherButtonCallback();
+      }
+  );
+}
+
+function getWeatherButtonCallback() {
+  console.log("function start: getWeatherButtonCallback()");
+
+  div_status.innerHTML="Getting yesterday's weather.";
+
+  async.series([
+      getCurrentWeather(),
+      getYesterdayWeather()
+  ]);
+
+  var count = 0;
+
+  async.whilst(
+      function () {
+        if (count == 5) {
+          console.log("waited 5 seconds for temperatures (" + todays_temp + ", " + yesterdays_temp + ")");
+          return false;
+        } else {
+          var test1 = todays_temp == null;
+          var test2 = yesterdays_temp == null;
+          return test1 || test2;
+        }
+      },
+      function (callback) {
+          count++;
+          console.log("waiting for temperatures (" + todays_temp + ", " + yesterdays_temp + ")");
+          setTimeout(callback, 1000);
+      },
+      function (err) {
+          getWeather();
+      }
+  );
+
+  console.log("function end: getWeatherButton()");
+}
+
+function getWeather() {
+  console.log("function start: getWeather()");
+  
+  var diff_description;
+  var diff_amount;
+
+  console.log("todays_temp: " + todays_temp);
+  console.log("yesterdays_temp: " + yesterdays_temp);
+  if (todays_temp > yesterdays_temp) {
+    diff_description = "warmer";
+    diff_amount = todays_temp - yesterdays_temp;
+  } else {
+    diff_description = "cooler";
+    diff_amount = yesterdays_temp - todays_temp;
+  }
+
+  diff_amount = Math.round(diff_amount * 100) / 100;
+
+  var display_text = "It's " + diff_amount + " degrees " + diff_description + " than yesterday.";
+
+  p_diff_temp.innerHTML = display_text;
+  div_status.innerHTML="";
+
+  console.log("function end: getWeather()");
+}
+
+function getCurrentWeatherButton() {
+  console.log("function start: getCurrentWeatherButton()");
+
+  async.series([
+      getLocation(),
+      getCurrentWeather()
+  ]);
+
+  console.log("function end: getCurrentWeatherButton()");
+}
+
+function getCurrentWeather() {
+  console.log("function start: getCurrentWeather()");
+  
+  var wunderground_url = "http://api.wunderground.com/api/31d46c83b443d545/geolookup/conditions/q/" + users_latitude + "," + users_longitude + ".json";
+  
+  console.log("asking wunderground question: " + wunderground_url);
+  
+  jQuery(document).ready(function($) {
+    $.ajax({
+      url : wunderground_url,
+      dataType : "jsonp",
+      success : function(parsed_json) {
+        var location = parsed_json['location']['city'];
+        todays_temp = parsed_json['current_observation']['temp_f'];
+        p_current_temp.innerHTML = "Current temperature in " + location + " is: " + todays_temp;
+      }
+    });
+  });
+  
+  console.log("function end: getCurrentWeather()");
+}
+
+function getYesterdayWeatherButton() {
+  console.log("function start: getYesterdayWeatherButton()");
+
+  async.series([
+      getLocation(),
+      getYesterdayWeather()
+  ]);
+
+  console.log("function end: getYesterdayWeatherButton()");
+}
+
+function getYesterdayWeather() {
+  console.log("function: getYesterdayWeather()");
+  
+  var wunderground_url = "http://api.wunderground.com/api/31d46c83b443d545/yesterday/q/" + users_latitude + "," + users_longitude + ".json";
+  
+  console.log("asking wunderground question: " + wunderground_url);
+  
+  jQuery(document).ready(function($) {
+    $.ajax({
+      url : wunderground_url,
+      dataType : "jsonp",
+      success : function(parsed_json) {
+        var observations = parsed_json['history']['observations'];
+
+        var observations_length = observations.length;
+
+        var current_date = new Date();
+        var current_hour = current_date.getHours();
+
+        for(ii = 0; ii < observations_length; ii++) {
+
+          var observation_hour = observations[ii]['date']['hour'];
+          if (observation_hour == current_hour) {
+            console.log("found hour");
+            yesterdays_temp = observations[ii]['tempi'];
+          }
+
+        }
+
+        p_yesterday_temp.innerHTML = "Yesterday's temperature " + " was: " + yesterdays_temp;
+      }
+    });
+  });
+
+}
+
+</script>
+</body>
+</html>
