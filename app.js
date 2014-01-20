@@ -30,6 +30,10 @@ app.get('/node_modules/async/lib/async.js', function(req, res) {
 	res.sendfile('node_modules/async/lib/async.js');
 });
 
+app.get('/button.css', function(req, res) {
+	res.sendfile('button.css');
+});
+
 var port = process.env.PORT || 5000;
 app.listen(port);
 console.log('Listening on port ' + port);
