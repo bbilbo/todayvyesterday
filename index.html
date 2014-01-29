@@ -45,7 +45,19 @@ background-image:url("images/background.png");
 		float: left;
 		margin-top:25px;
 }
+
+#compute2 {
+		
+		
+}
 </style>
+
+
+
+
+
+
+
 <!-- 
   blue: #c5dee8
   -->
@@ -67,7 +79,7 @@ background-image:url("images/background.png");
 
   <div id="status"></div>
 
-  <div id="current_location"></div>
+  <div id="current_location_div" style="visibility:hidden">Location: <span style="text-decoration:underline; cursor:pointer" id="current_location_span" onclick="location_clicked()"></span><span id="new_location_span" style="visibility:hidden"><input type="text" id="zipcode_input" value="Enter Zip Code" onfocus="zipcode_focus()"/><input type="submit" id="compute2" value="Go" onclick="new_zipcode_go()"></span><span id="go2_error" style="font-size:10px; padding-left:10px; color:red"></span></div>
 
   <div id="current_temp"></div>
 
@@ -80,6 +92,13 @@ background-image:url("images/background.png");
   <div id="help"></div>
 </div>
 
+
+
+
+
+
+
+
 <script>
 
 var dev_env = false;
@@ -89,7 +108,14 @@ var dev_longitude = -73.9564793;
 
 var info1 = document.getElementById("info1");
 
-var p_current_location = document.getElementById("current_location");
+var current_location_div = document.getElementById("current_location_div");
+var current_location_span = document.getElementById("current_location_span");
+var new_location_span = document.getElementById("new_location_span");
+var zipcode_input = document.getElementById("zipcode_input");
+var compute2 = document.getElementById("compute2");
+
+var go2_error = document.getElementById("go2_error");
+
 var p_current_temp = document.getElementById("current_temp");
 var p_yesterday_temp = document.getElementById("yesterday_temp");
 var p_diff_temp = document.getElementById("diff_temp");
@@ -97,13 +123,64 @@ var div_status = document.getElementById("status");
 var init_message = document.getElementById("init_message");
 var div_help = document.getElementById("help");
 
-var users_latitude;
-var users_longitude;
-
 var todays_temp;
 var yesterdays_temp;
 
 // helper functions
+
+function isValidUSZip(sZip) {
+   return /^\d{5}(-\d{4})?$/.test(sZip);
+}
+
+function new_zipcode_go() {
+	console.log("function start: new_zipcode_go()");
+
+	if (isValidUSZip(zipcode_input.value)) {
+	  compute2.style.visibility = "hidden";
+	
+		go2_error.innerHTML = "";
+		
+		localStorage.users_zipcode = zipcode_input.value;
+		
+		localStorage.manual_override = true;
+		todays_temp = null;
+		yesterdays_temp = null;
+		
+		//current_location_div.style.visibility = "hidden";
+		p_current_temp.innerHTML = "";
+		p_yesterday_temp.innerHTML = "";
+		p_diff_temp.innerHTML = "";
+		div_help.innerHTML = "";
+		
+		zipcode_input.style.visibility = "hidden";
+		current_location_div.style.visibility = "hidden";
+		
+		getWeatherButton();
+	} else {
+		go2_error.innerHTML = "Please enter a valid 5 digit zip code.";
+	}
+}
+
+function zipcode_focus() {
+	zipcode_input.value = "";
+}
+
+function location_clicked() {
+  console.log("function start: location_clicked()");
+	current_location_span.style.display = "none";
+	new_location_span.style.visibility = "visible";
+	
+	zipcode_input.style.visibility = "visible";
+	compute2.style.visibility = "visible";
+}
+
+function goGo() {
+	var type = window.location.hash.substr(1);
+	console.log("hash: " + type);
+	if (type == "go") {
+		getWeatherButton();
+	}
+}
 
 function getLocationButton() {
   getLocation();
@@ -112,10 +189,11 @@ function getLocationButton() {
 function getLocation() {
   console.log("function start: getLocation()");
 
-  if (dev_env) {
-    users_latitude = dev_latitude;
-    users_longitude = dev_longitude;
-    //p_current_location.innerHTML = "Latitude: " + users_latitude + " & Longitude: " + users_longitude;
+	if (localStorage.manual_override) {
+		
+	} else if (dev_env) {
+    localStorage.users_latitude = dev_latitude;
+    localStorage.users_longitude = dev_longitude;
   } else {
     getCurPos();
   }
@@ -135,13 +213,11 @@ function getCurPos() {
   console.log("function end: getCurPos()");
 }
 
-function getCurPosCallback(position) {
+function getCurPosCallback(position) {	
   console.log("function start: getCurPosCallback()");
   
-  users_latitude = position.coords.latitude;
-  users_longitude = position.coords.longitude;
-  
-  //p_current_location.innerHTML = "Latitude: " + users_latitude + " & Longitude: " + users_longitude;
+  localStorage.users_latitude = position.coords.latitude;
+  localStorage.users_longitude = position.coords.longitude;
 
   div_status.innerHTML="Got current location.";
   
@@ -165,15 +241,17 @@ function getWeatherButton() {
         if (count == 15) {
           console.log("waited 15 seconds for location");
           return false;
+				} else if (localStorage.manual_override) {
+					return false;
         } else {
-          var test1 = users_latitude == null;
-          var test2 = users_longitude == null;
+          var test1 = localStorage.users_latitude == null;
+          var test2 = localStorage.users_longitude == null;
           return test1 || test2;
         }
       },
       function (callback) {
           count++;
-          console.log("waiting for location (" + users_latitude + ", " + users_longitude + ")");
+          console.log("waiting for location (" + localStorage.users_latitude + ", " + localStorage.users_longitude + ")");
           setTimeout(callback, 1000);
       },
       function (err) {
@@ -272,7 +350,13 @@ function getCurrentWeatherButton() {
 function getCurrentWeather() {
   console.log("function start: getCurrentWeather()");
   
-  var wunderground_url = "http://api.wunderground.com/api/31d46c83b443d545/geolookup/conditions/q/" + users_latitude + "," + users_longitude + ".json";
+	var query_str = localStorage.users_latitude + "," + localStorage.users_longitude;
+	
+	if (localStorage.manual_override) {
+		query_str = String(localStorage.users_zipcode);
+	}
+	
+  var wunderground_url = "http://api.wunderground.com/api/31d46c83b443d545/geolookup/conditions/q/" + query_str + ".json";
   
   console.log("asking wunderground question: " + wunderground_url);
   
@@ -285,7 +369,13 @@ function getCurrentWeather() {
         todays_temp = parsed_json['current_observation']['temp_f'];
 
         div_status.innerHTML="";
-        p_current_location.innerHTML = "Location: " + location;
+        current_location_div.style.visibility = "visible";
+				if (localStorage.manual_override) {
+					current_location_span.innerHTML = "" + localStorage.users_zipcode;
+				} else {
+					current_location_span.innerHTML = "" + location;
+				}
+				current_location_span.style.display = "";
         p_current_temp.innerHTML = "Current temp: " + todays_temp + "°";
       }
     });
@@ -305,10 +395,18 @@ function getYesterdayWeatherButton() {
   console.log("function end: getYesterdayWeatherButton()");
 }
 
+//  http://api.wunderground.com/api/31d46c83b443d545/yesterday/q/85745.json
+
 function getYesterdayWeather() {
   console.log("function: getYesterdayWeather()");
+	
+	var query_str = localStorage.users_latitude + "," + localStorage.users_longitude;
+	
+	if (localStorage.manual_override) {
+		query_str = String(localStorage.users_zipcode);
+	}
   
-  var wunderground_url = "http://api.wunderground.com/api/31d46c83b443d545/yesterday/q/" + users_latitude + "," + users_longitude + ".json";
+  var wunderground_url = "http://api.wunderground.com/api/31d46c83b443d545/yesterday/q/" + query_str + ".json";
   
   console.log("asking wunderground question: " + wunderground_url);
   
@@ -340,6 +438,8 @@ function getYesterdayWeather() {
   });
 
 }
+
+window.onload = goGo();
 
 </script>
 </body>
