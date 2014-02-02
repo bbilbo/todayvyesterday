@@ -1,0 +1,42 @@
+body
+{
+font-family:Arial, Helvetica, sans-serif;
+color: rgb(113, 112, 112);
+background-image:url("/images/background.png");
+}
+#top_area {
+  font-size:20px;
+  background-color:#FFFFFF;
+  border-bottom: 2px rgb(113, 112, 112) solid;
+  width:100%;
+  height: 120px;
+  vertical-align: center;
+  padding: 15px;
+  padding-left: 120px;
+}
+#bottom_area {
+  padding-top: 10px;
+  padding-left: 120px;
+  font-size:60px;
+  margin:10px;
+  padding-bottom: 20px;
+}
+#footer {
+  padding-left: 120px;
+  background-color:#ffffff;
+  font-size: 19px;
+}
+
+#get_the_weather {
+	float: left;
+	display: inline;
+}
+
+#get_weather_text {
+	float: left;
+}
+
+#compute {
+		float: left;
+		margin-top:25px;
+}
