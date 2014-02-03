@@ -1,0 +1,19 @@
+{
+  "name": "Weather - Today vs Yesterday",
+  "description": "See how today's weather compares to yesterday's.",
+  "version": "1",
+  "manifest_version": 2,
+  "app": {
+    "urls": [
+      "*://www.todayvyesterday.com/"
+    ],
+    "launch": {
+      "web_url": "http://www.todayvyesterday.com/"
+    }
+  },
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "permissions": [
+  ]
+}

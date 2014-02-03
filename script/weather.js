@@ -96,8 +96,8 @@ function getYesterdayWeather() {
 		query_str = String(localStorage.users_zipcode);
 	}
 
-  //wuYesterday(query_str);
-  wwoGetPastWeather(query_str);
+  wuYesterday(query_str);
+  //wwoGetPastWeather(query_str);
 
   console.log("function end: getYesterdayWeather()");
 }
