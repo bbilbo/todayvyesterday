@@ -121,7 +121,8 @@ function new_zipcode_go() {
 	console.log("function start: new_zipcode_go()");
 
 	if (isValidUSZip(zipcode_input.value)) {
-	  compute2.style.visibility = "hidden";
+	  new_location_span.style.display = "none";
+    compute2.style.visibility = "hidden";
 	
 		go2_error.innerHTML = "";
 		
@@ -184,7 +185,7 @@ function new_zipcode_go2() {
 function location_clicked() {
   console.log("function start: location_clicked()");
 	current_location_span.style.display = "none";
-	new_location_span.style.visibility = "visible";
+	new_location_span.style.display = "";
 	
 	zipcode_input.style.visibility = "visible";
 	compute2.style.visibility = "visible";
