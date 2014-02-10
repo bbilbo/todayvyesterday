@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 
 var weather = require('./server/weather');
+var yweather = require('./server/yweather');
 
 
 app.get('/', function(req, res) {
@@ -131,6 +132,25 @@ app.get(/^\/weather\/(.+)$/, function(req, res) {
   console.log("query: " + query);
 
   weather.getTheWeather(query, res);
+})
+
+
+
+
+app.get(/^\/yweather\/(\w+)$/, function(req, res) {
+  var query = req.params[0];
+
+  console.log("query: " + query);
+
+  yweather.getYWeather(query, res);
+})
+
+app.get(/^\/yweather\/(.+)$/, function(req, res) {
+  var query = req.params[0];
+
+  console.log("query: " + query);
+
+  yweather.getYWeather(query, res);
 })
 
 
