@@ -125,6 +125,14 @@ app.get(/^\/weather\/(\w+)$/, function(req, res) {
   weather.getTheWeather(query, res);
 })
 
+app.get(/^\/weather\/(.+)$/, function(req, res) {
+  var query = req.params[0];
+
+  console.log("query: " + query);
+
+  weather.getTheWeather(query, res);
+})
+
 
 
 
