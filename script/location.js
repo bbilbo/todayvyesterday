@@ -1,10 +1,11 @@
 function getLocation() {
   console.log("function start: getLocation()");
 
-	if (dev_env) {
-    localStorage.users_latitude = dev_latitude;
-    localStorage.users_longitude = dev_longitude;
-  } else if (localStorage.manual_override) {
+	//if (dev_env) {
+    //localStorage.users_latitude = dev_latitude;
+    //localStorage.users_longitude = dev_longitude;
+  //} else
+  if (localStorage.manual_override) {
     getZipCodeName();
   } else {
     getComputerLocation();

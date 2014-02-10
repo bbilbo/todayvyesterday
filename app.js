@@ -1,12 +1,20 @@
 var express = require('express');
 var app = express();
 
+var weather = require('./server/weather');
 
 
 app.get('/', function(req, res) {
 	console.log('Request for index.html');
 	res.sendfile('index.html');
 });
+
+app.get('/dev/', function(req, res) {
+  console.log('Request for index_dev.html');
+  res.sendfile('index_dev.html');
+});
+
+
 
 app.get('/index2.html', function(req, res) {
 	res.sendfile('index2.html');
@@ -105,6 +113,18 @@ app.get('/script/freeAPI.js', function(req, res) {
 app.get('/geocoding-simple.html', function(req, res) {
 	res.sendfile('geocoding-simple.html');
 });
+
+
+
+
+app.get(/^\/weather\/(\w+)$/, function(req, res) {
+  var query = req.params[0];
+
+  console.log("query: " + query);
+
+  weather.getTheWeather(query, res);
+})
+
 
 
 

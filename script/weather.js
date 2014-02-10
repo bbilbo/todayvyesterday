@@ -14,8 +14,14 @@ function getCurrentWeather() {
 		query_str = String(localStorage.users_zipcode);
 	}
 
-  //wuGeoLoopupConditions(query_str);
-  wwoGetLocalWeather(query_str);
+  if (brian_is_cool) {
+    console.log("dev_env");
+    my_server_get_local_weather(query_str);
+    //wwoGetLocalWeather(query_str);
+  } else {
+    //wuGeoLoopupConditions(query_str);
+    wwoGetLocalWeather(query_str);
+  }
   
   console.log("function end: getCurrentWeather()");
 }
@@ -24,6 +30,36 @@ function CurrentWeatherCallback() {
   div_status.innerHTML="";
   current_location_div.style.visibility = "visible";
   p_current_temp.innerHTML = "Current temp: " + todays_temp + "°";
+}
+
+function my_server_get_local_weather(query_str) {
+  var server_domain;
+
+  if (document.location.hostname == "localhost") {
+    console.log("IM ON LOCALHOST!!!!");
+    server_domain = "localhost:5000";
+  } else {
+    server_domain = "www.todayvyesterday.com"
+  }
+
+  var wunderground_url = "http://" + server_domain + "/weather/" + query_str;
+  
+  console.log("asking " + server_domain + " question: " + wunderground_url);
+  
+  jQuery(document).ready(function($) {
+    $.ajax({
+      url : wunderground_url,
+      dataType : "jsonp",
+      success : function(parsed_json) {
+        //location_name = parsed_json['location']['city'];
+        console.log(server_domain + " responded with: ");
+        console.log(parsed_json);
+        todays_temp = parsed_json['todays_temp'];
+
+        CurrentWeatherCallback();
+      }
+    });
+  });
 }
 
 function wuGeoLoopupConditions(query_str) {
@@ -284,6 +320,9 @@ function getWeather() {
   diff_amount = Math.round(diff_amount * 100) / 100;
 
   var display_text = "It's " + diff_amount + "° " + diff_description + " than yesterday.";
+  if (brian_is_cool) {
+    //var display_text = "Brian loves Rachel!";
+  }
 
   p_diff_temp.innerHTML = display_text;
   div_status.innerHTML="";
