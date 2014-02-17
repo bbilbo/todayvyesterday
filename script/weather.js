@@ -14,13 +14,14 @@ function getCurrentWeather() {
 		query_str = String(localStorage.users_zipcode);
 	}
 
-  if (brian_is_cool) {
-    console.log("dev_env");
+  if (super_secret_dev_var) {
+    console.log("super_secret_dev_var");
     my_server_get_local_weather(query_str);
     //wwoGetLocalWeather(query_str);
   } else {
     //wuGeoLoopupConditions(query_str);
-    wwoGetLocalWeather(query_str);
+    //wwoGetLocalWeather(query_str);
+    my_server_get_local_weather(query_str);
   }
   
   console.log("function end: getCurrentWeather()");
@@ -141,12 +142,13 @@ function getYesterdayWeather() {
 		query_str = String(localStorage.users_zipcode);
 	}
 
-  if (brian_is_cool) {
-    console.log("dev_env");
+  if (super_secret_dev_var) {
+    console.log("super_secret_dev_var");
     my_server_get_past_weather(query_str);
   } else {
-    wuYesterday(query_str);
+    //wuYesterday(query_str);
     //wwoGetPastWeather(query_str);
+    my_server_get_past_weather(query_str);
   }
 
   console.log("function end: getYesterdayWeather()");
@@ -162,13 +164,16 @@ function my_server_get_past_weather(query_str) {
     server_domain = "www.todayvyesterday.com"
   }
 
-  var wunderground_url = "http://" + server_domain + "/yweather/" + query_str;
+  var current_date = new Date();
+  var current_hour = current_date.getHours();
+
+  var request_url = "http://" + server_domain + "/yweather/" + query_str + "/" + current_hour;
   
-  console.log("asking " + server_domain + " question: " + wunderground_url);
+  console.log("asking " + server_domain + " question: " + request_url);
   
   jQuery(document).ready(function($) {
     $.ajax({
-      url : wunderground_url,
+      url : request_url,
       dataType : "jsonp",
       success : function(parsed_json) {
         //location_name = parsed_json['location']['city'];
@@ -331,6 +336,13 @@ function wwoPastWeatherCallback(pastWeather) {
 
 
 
+
+
+
+
+
+
+
 // take temperatures and subtract
 
 function getWeather() {
@@ -343,29 +355,36 @@ function getWeather() {
   console.log("todays_temp: " + todays_temp);
   console.log("yesterdays_temp: " + yesterdays_temp);
 
+  var display_text;
+
   if (todays_temp > yesterdays_temp) {
+    console.log("it is warmer");
     diff_description = "warmer";
     diff_amount = todays_temp - yesterdays_temp;
+    diff_amount = Math.round(diff_amount * 100) / 100;
+
+    display_text = "It's " + diff_amount + "° " + diff_description + " than yesterday.";
 
     if (diff_amount > 4) {
       help_text = "looks like it is warmer today. maybe you could dress a bit lighter"
     }
 
-  } else {
+  } else if (todays_temp < yesterdays_temp) {
+    console.log("it is cooler");
     diff_description = "cooler";
     diff_amount = yesterdays_temp - todays_temp;
+    diff_amount = Math.round(diff_amount * 100) / 100;
+
+    display_text = "It's " + diff_amount + "° " + diff_description + " than yesterday.";
 
     if (diff_amount > 4) {
       help_text = "looks like it is cooler today. maybe you should dress a bit heavier"
     }
 
-  }
+  } else {
+    console.log("it is the same");
 
-  diff_amount = Math.round(diff_amount * 100) / 100;
-
-  var display_text = "It's " + diff_amount + "° " + diff_description + " than yesterday.";
-  if (brian_is_cool) {
-    //var display_text = "Brian loves Rachel!";
+    display_text = "It's the same temperature as yesterday.";
   }
 
   p_diff_temp.innerHTML = display_text;

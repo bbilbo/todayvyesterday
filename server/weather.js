@@ -42,10 +42,8 @@ JSONP_LocalWeather = function JSONP_LocalWeather(input) {
 
     //the whole response has been recieved, so we just print it out here
     response.on('end', function () {
-      console.log(str);
 
       var json_response = JSON.parse(str);
-      //console.log(json_response);
 
       var todays_temp = 0;
 

@@ -1,6 +1,4 @@
-var dev_env = false;
-
-var cache_app_data = false;
+var cache_users_lat_lng = false;
 
 var users_latitude;
 var users_longitude;
@@ -41,12 +39,24 @@ var new_location_span2 = document.getElementById("new_location_span2");
 var zipcode_input2 = document.getElementById("zipcode_input2");
 
 
+
+
+
 // button on clicks
 
 // main main fuctoin to get the weather and 
 
 function getWeatherButton() {
   console.log("function start: getWeatherButton()");
+
+  if(!localStorage.user_id) {
+    localStorage.user_id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+      });;
+    document.cookie = "user_id=" + localStorage.user_id;
+  }
+  console.log("localStorage.user_id: " + localStorage.user_id);
 
   init_message.style.display = "none";
   div_status.innerHTML="Getting current location.";
@@ -78,6 +88,9 @@ function getWeatherButton() {
   );
 }
 
+
+
+
 function getWeatherButtonCallback() {
   console.log("function start: getWeatherButtonCallback()");
 
@@ -92,8 +105,9 @@ function getWeatherButtonCallback() {
 
   async.whilst(
       function () {
-        if (count == 15) {
-          console.log("waited 15 seconds for temperatures (" + todays_temp + ", " + yesterdays_temp + ")");
+        var time_to_wait = 5;
+        if (count == time_to_wait) {
+          console.log("waited " + time_to_wait + " seconds for temperatures (" + todays_temp + ", " + yesterdays_temp + ")");
           return false;
         } else {
           var test1 = todays_temp == null;
@@ -107,7 +121,38 @@ function getWeatherButtonCallback() {
           setTimeout(callback, 1000);
       },
       function (err) {
-          getWeather();
+          var test1 = todays_temp == null;
+          var test2 = yesterdays_temp == null;
+
+
+
+          var error_occurred = isNaN(todays_temp) || isNaN(yesterdays_temp);
+          //error_occurred = true;
+
+          if (error_occurred) {
+            // hide the location
+            //current_location_div.style.display = "none";
+
+            // hide the current temp
+            if (isNaN(todays_temp)) {
+              p_current_temp.style.display = "none";
+            }
+
+            // hide yesterday's temp
+            p_yesterday_temp.style.display = "none";
+
+            // give error message
+            p_diff_temp.innerHTML = "</br>I'm sorry, but an error occurred.</br>Please try again later by clicking refresh.</br></br>A log of this error has been made and our engineers have been notified.";
+
+            // let the user know
+            console.log("error_occurred: " + error_occurred);
+            
+            // send an email for further investigation
+            // make call to server to send email
+            tell_server_to_record_error();
+          } else {
+            getWeather();
+          }
       }
   );
 
@@ -204,4 +249,31 @@ function location_clicked2() {
 }
 function zipcode_focus2() {
 	zipcode_input2.value = "";
+}
+
+
+
+function tell_server_to_record_error() {
+  var server_domain;
+
+  if (document.location.hostname == "localhost") {
+    console.log("IM ON LOCALHOST!!!!");
+    server_domain = "localhost:5000";
+  } else {
+    server_domain = "www.todayvyesterday.com"
+  }
+
+  var request_url = "http://" + server_domain + "/error_occurred/";
+  
+  console.log("asking " + server_domain + " question: " + request_url);
+  
+  jQuery(document).ready(function($) {
+    $.ajax({
+      url : request_url,
+      dataType : "jsonp",
+      success : function(parsed_json) {
+        console.log("email notice sent");
+      }
+    });
+  });
 }

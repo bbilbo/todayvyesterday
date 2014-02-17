@@ -1,14 +1,23 @@
 function getLocation() {
   console.log("function start: getLocation()");
 
-	//if (dev_env) {
-    //localStorage.users_latitude = dev_latitude;
-    //localStorage.users_longitude = dev_longitude;
-  //} else
-  if (localStorage.manual_override) {
+	if (localStorage.manual_override) {
     getZipCodeName();
   } else {
-    getComputerLocation();
+    if (localStorage.users_latitude) {
+      console.log("looks like lat and lng are cached");
+
+      users_latitude = localStorage.users_latitude;
+      users_longitude = localStorage.users_longitude;
+
+      div_status.innerHTML="Got current location.";
+      div_mini_status.style.display = "none";
+      
+      getLatLongName();
+
+    } else {
+      getComputerLocation();
+    } 
   }
 
   console.log("function end: getLocation()");
@@ -34,7 +43,7 @@ function getComputerLocationCallback(position) {
   users_longitude = position.coords.longitude;
   getLatLongName();
   
-  if (cache_app_data) {
+  if (cache_users_lat_lng) {
     localStorage.users_latitude = users_latitude;
     localStorage.users_longitude = users_longitude;
   }
@@ -51,29 +60,38 @@ function getLatLongName() {
 
   geocoder = new google.maps.Geocoder();
   var latlng = new google.maps.LatLng(users_latitude, users_longitude);
+  
   geocoder.geocode({'latLng': latlng}, function(results, status) {
+
       if (status == google.maps.GeocoderStatus.OK) {
         parseCityState(results);
       } else {
         console.log("Geocoder failed due to: " + status);
       }
     });
+  
 }
 
 function getZipCodeName() {
   console.log("function start: getZipCodeName()");
-  geocoder = new google.maps.Geocoder();
+  
   console.log("localStorage.users_zipcode: " + localStorage.users_zipcode);
   var address = localStorage.users_zipcode;
+  
+  geocoder = new google.maps.Geocoder();
   geocoder.geocode( { 'address': address}, function(results, status) {
+
     console.log("getZipCodeName Callback");
-      if (status == google.maps.GeocoderStatus.OK) {
-        console.log("Geocoder status: " + status);
-        parseCityState(results);
-      } else {
-        console.log("Geocoder failed due to: " + status);
-      }
-    });
+    
+    if (status == google.maps.GeocoderStatus.OK) {
+      console.log("Geocoder status: " + status);
+      parseCityState(results);
+    } else {
+      console.log("Geocoder failed due to: " + status);
+    }
+    
+  });
+
   console.log("function end: getZipCodeName()");
 }
 

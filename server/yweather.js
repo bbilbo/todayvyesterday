@@ -2,13 +2,13 @@ var http = require('http');
 var _PremiumApiKey = '994rwc7yxed454zh8ft7emya';
 var response_var;
 
-exports.getYWeather = function getYWeather(query_str, res) {
+exports.getYWeather = function getYWeather(query_str, hour, res) {
   response_var = res;
 
-  wwoGetYesterdayWeather(query_str);
+  wwoGetYesterdayWeather(query_str, hour);
 };
 
-function wwoGetYesterdayWeather(query_str) {
+function wwoGetYesterdayWeather(query_str, hour) {
   console.log("function start: wwoGetYesterdayWeather()");
 
   var pastWeatherInput = {
@@ -22,10 +22,10 @@ function wwoGetYesterdayWeather(query_str) {
       callback: 'wwoPastWeatherCallback'
   };
 
-  JSONP_PastWeather(pastWeatherInput);
+  JSONP_PastWeather(pastWeatherInput, hour);
 }
 
-function JSONP_PastWeather(input) {
+function JSONP_PastWeather(input, input_hour) {
   var options = {
     host: 'api.worldweatheronline.com',
     path: '/premium/v1/past-weather.ashx?q=' + input.query + '&format=' + input.format + '&extra=' + input.extra + '&date=' + input.date + '&enddate=' + input.enddate + '&includelocation=' + input.includelocation + '&key=' + _PremiumApiKey
@@ -41,36 +41,17 @@ function JSONP_PastWeather(input) {
 
     //the whole response has been recieved, so we just print it out here
     response.on('end', function () {
-      console.log(str);
 
       var pastWeather = JSON.parse(str);
 
       var yesterdays_temp = 0;
 
-
-
-
-
-      //if (json_response && json_response.data && json_response.data.current_condition
-      //  && json_response.data.current_condition[0] && json_response.data.current_condition[0].temp_F) {
-      //  todays_temp = json_response.data.current_condition[0].temp_F;
-      //}
-
-      //response_var.json(json_response);
-
-      
-
-      //////////
-
-
-
-
       var hourlys = pastWeather.data.weather[0].hourly.length;
   
-      console.log("hourlys :" + hourlys);
+      console.log("sets of yesterday data :" + hourlys);
       
-      var current_date = new Date();
-      var current_hour = current_date.getHours();
+      //var current_date = new Date();
+      var current_hour = input_hour;
 
       console.log("current_hour :" + current_hour);
 
@@ -82,6 +63,10 @@ function JSONP_PastWeather(input) {
       for(ii = 0; ii < hourlys && !done; ii++) {
         var ii_hour = Number(pastWeather.data.weather[0].hourly[ii].time) / 100;
         var ii_temp = Number(pastWeather.data.weather[0].hourly[ii].tempF);
+
+        console.log("ii_hour :" + ii_hour);
+        console.log("time :" + Number(pastWeather.data.weather[0].hourly[ii].time));
+        console.log("tempF :" + ii_temp);
 
         if (ii_hour == current_hour) {
           done = true;
@@ -121,14 +106,13 @@ function JSONP_PastWeather(input) {
 
           console.log("*** fraction :" + fraction);
 
-          var temp_delta_to_use = diff_temp * fraction;
+          var temp_delta_to_use = +(diff_temp * fraction).toFixed(0);
           console.log("*** temp_delta_to_use :" + temp_delta_to_use);
 
 
           console.log("***** math");
           console.log("***** previous_temp: " + previous_temp);
           console.log("***** temp_delta_to_use: " + temp_delta_to_use);
-          console.log("***** previous_temp - temp_delta_to_use: " + toString(Number(previous_temp - temp_delta_to_use)));
 
           var yesterdays_temp_tmp;
           if (temp_is_going_down) {
@@ -137,7 +121,7 @@ function JSONP_PastWeather(input) {
             yesterdays_temp_tmp = previous_temp + temp_delta_to_use;
           }
 
-          console.log("*** yesterdays_temp_tmp :" + yesterdays_temp_tmp);
+          console.log("***** yesterdays_temp_tmp :" + yesterdays_temp_tmp);
 
           console.log("***** math");
 
@@ -146,31 +130,14 @@ function JSONP_PastWeather(input) {
           done = true;
         }
 
-        console.log("ii_hour :" + ii_hour);
-        console.log("time :" + Number(pastWeather.data.weather[0].hourly[ii].time));
-        console.log("tempF :" + ii_temp);
-
         previous_hour = ii_hour;
         previous_temp = ii_temp;
       }
 
 
-
-      //////////
-
-
-
-
-
-
       console.log("yesterdays_temp: " + yesterdays_temp);
 
       response_var.jsonp({ yesterdays_temp : yesterdays_temp});
-
-
-
-
-
     });
   }
 
