@@ -49,6 +49,17 @@ var zipcode_input2 = document.getElementById("zipcode_input2");
 function getWeatherButton() {
   console.log("function start: getWeatherButton()");
 
+  // fire the floodlight
+  var axel = Math.random() + "";
+  var a = axel * 10000000000000;
+  var imgElement = document.createElement('img');
+  
+  imgElement.style.width= '1px';
+  imgElement.style.height= '1px';
+  imgElement.src = "http://ad.doubleclick.net/activity;src=3853485;type=cloud150;cat=cloud762;ord=" + a + "?";
+  
+  document.body.appendChild(imgElement);
+
   if(!localStorage.user_id) {
     localStorage.user_id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
