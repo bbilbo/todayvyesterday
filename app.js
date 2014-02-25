@@ -58,6 +58,9 @@ app.get('/test2.html', function(req, res) {
 });
 
 
+app.get('/ba.html', function(req, res) {
+  res.sendfile('ba.html');
+});
 
 
 app.get('/images/background.png', function(req, res) {
