@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="/button.css">
+  <link rel="stylesheet" type="text/css" href="/css/main.css">
+<style type="text/css">
+
+</style>
+<!-- 
+  blue: #c5dee8
+  -->
+</head>
+
+<body style="margin:0px;">
+<script>
+var super_secret_dev_var = false;
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script src="/node_modules/async/lib/async.js"></script>
+
+<div id="top_area">
+  <br><span style="font-size:41px">Weather - Today v Yesterday</span><br><span>See how today's weather compares to yesterday's.
+</div>
+
+<div id="bottom_area">
+  <div id="init_message">
+    <div id="get_the_weather"><span id="get_weather_text">Get the weather:&nbsp;</span><button onclick="getWeatherButton()" id="compute" class="coolbutton">Go</button></div>
+  </div>
+
+  <div id="status"></div><div id="mini_status" style="display:none;"></br>Click the 'Allow' button above to</br>automatically use your computer's location</br>or <span style="cursor:pointer; text-decoration:underline" onclick="location_clicked2()" id="enter_it_manually_span">enter it manually</span><span id="new_location_span2" style="visibility:hidden"><input type="text" id="zipcode_input2" value="Enter Zip Code" onfocus="zipcode_focus2()"/><input type="submit" id="compute3" value="Go" onclick="new_zipcode_go2()" class="coolbutton"></span><span id="go3_error" style="font-size:10px; padding-left:10px; color:red"></span></div>
+
+  <div id="current_location_div" style="visibility:hidden">Location: <span style="text-decoration:underline; cursor:pointer" id="current_location_span" onclick="location_clicked()"></span><span id="new_location_span" style="display:none;"><input type="text" id="zipcode_input" value="Enter Zip Code" onfocus="zipcode_focus()"/><input type="submit" id="compute2" value="Go" onclick="new_zipcode_go()"  class="coolbutton"></span><span id="go2_error" style="font-size:10px; padding-left:10px; color:red"></span></div>
+
+  <div id="current_temp"></div>
+
+  <div id="yesterday_temp"></div>
+
+  <div id="diff_temp"></div>
+</div>
+
+<div id="footer">
+  <div id="help"></div>
+</div>
+
+
+
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQYNCGgnta_FthhBtF504f90fKGGNiPko&sensor=false"></script>
+
+    <script>
+var geocoder;
+var map;
+function initialize() {
+  geocoder = new google.maps.Geocoder();
+  var latlng = new google.maps.LatLng(-34.397, 150.644);
+  var mapOptions = {
+    zoom: 8,
+    center: latlng
+  }
+  //map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+}
+
+function codeAddress() {
+  var address = document.getElementById('address').value;
+  geocoder.geocode( { 'address': address}, function(results, status) {
+    if (status == google.maps.GeocoderStatus.OK) {
+      //console.log("here!");
+      //map.setCenter(results[0].geometry.location);
+      //var marker = new google.maps.Marker({
+      //    map: map,
+      //    position: results[0].geometry.location
+      //});
+    } else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  });
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+
+<script src="/script/freeAPI.js" type="text/javascript"></script>
+<script src="/script/premiumAPI.js" type="text/javascript"></script>
+<script src="/script/helper.js" type="text/javascript"></script>
+<script src="/script/location.js" type="text/javascript"></script>
+<script src="/script/weather.js" type="text/javascript"></script>
+<script src="/script/main.js" type="text/javascript"></script>
+<script>
+
+function goGo() {
+  var type = window.location.hash.substr(1);
+  console.log("hash: " + type);
+  if (type == "go") {
+    getWeatherButton();
+  }
+  if (type == "godev") {
+    super_secret_dev_var = true;
+    console.log("godev");
+    getWeatherButton();
+  }
+}
+
+window.onload = goGo();
+
+</script>
+
+<!--
+Start of DoubleClick Floodlight Tag: Please do not remove
+Activity name of this tag: Pixel 1
+URL of the webpage where the tag is expected to be placed: http://www.invitemedia.com/
+This tag must be placed between the <body> and </body> tags, as close as possible to the opening tag.
+Creation Date: 03/12/2014
+-->
+<script type="text/javascript">
+var axel = Math.random() + "";
+var a = axel * 10000000000000;
+document.write('<iframe src="https://4383468.fls.doubleclick.net/activityi;src=4383468;type=invmedia;cat=grgghflf;ord=' + a + '?" width="1" height="1" frameborder="0" style="display:none"></iframe>');
+</script>
+<noscript>
+<iframe src="https://4383468.fls.doubleclick.net/activityi;src=4383468;type=invmedia;cat=grgghflf;ord=1?" width="1" height="1" frameborder="0" style="display:none"></iframe>
+</noscript>
+
+<!-- End of DoubleClick Floodlight Tag: Please do not remove -->
+
+
+
+</body>
+</html>

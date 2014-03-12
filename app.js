@@ -58,9 +58,6 @@ app.get('/test2.html', function(req, res) {
 });
 
 
-app.get('/ba.html', function(req, res) {
-  res.sendfile('ba.html');
-});
 
 
 app.get('/images/background.png', function(req, res) {
@@ -254,6 +251,19 @@ app.get(/^\/error_occurred\/$/, function(req, res) {
     res.jsonp({ email_sent : true});
   });
 })
+
+
+
+
+app.get('/ba.html', function(req, res) {
+  res.sendfile('ba.html');
+});
+
+app.get('/ba_remarketing.html', function(req, res) {
+  res.sendfile('ba_remarketing.html');
+});
+
+
 
 
 
